@@ -6,43 +6,20 @@ from slixmpp import ClientXMPP
 
 class Client(ClientXMPP):
 
-    def __init__(self, jid, password, jid_receiver, message):
+    def __init__(self, jid, password):
         # ClientXMPP.__init__(self, jid, password)
         super().__init__(jid, password)
         self.jid = jid
         self.password = password
-        self.jid_receiver = jid_receiver
-        self.message = message
 
-        self.add_event_handler('session_start', self.start)
+        self.add_event_handler("session_start", self.start)
 
 
     async def start(self, event):
         self.send_presence()
         await self.get_roster()
 
-        self.send_message(mto=self.jid_receiver, mbody=self.message, mtype='chat')
-        self.disconnect()
-
-
-    def register(self):
-        # Registrar una nueva cuenta en el servidor
-        pass
-
-
-    def login(self):
-        # Iniciar sesión con una cuenta
-        pass
-
-
-    def logout(self):
-        # Cerrar sesión con una cuenta
-        pass
-
-
-    def destroy_account(self):
-        # Eliminar la cuenta del servidor
-        pass
+        self.private_chat()
 
 
     def list_users(self):
@@ -67,7 +44,15 @@ class Client(ClientXMPP):
 
     def private_chat(self):
         # Comunicación 1 a 1 con cualquier usuario/contacto
-        pass
+        jid_receiver = input("receiver: [echobot@alumchat.xyz] ")
+
+        if not jid_receiver:
+            jid_receiver = "echobot@alumchat.xyz"
+
+        message = input("message: ")
+
+        self.send_message(mto=jid_receiver, mbody=message, mtype="chat")
+        self.disconnect()        
 
 
     def group_chat(self):

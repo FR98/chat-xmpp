@@ -35,6 +35,10 @@ class App(object):
         self.password = None
         self.running = True
         self.authenticated = False
+
+        self.authenticated_options = ["Logout"]
+        self.unauthenticated_options = ["Close", "Register", "Login"]
+
         self.app()
 
 
@@ -45,34 +49,32 @@ class App(object):
             else:
                 self.unauthenticated_menu()
 
-            try:
-                option = input("> ")
+            option = input("> ")
+
+            if not self.authenticated and option.lower() in [i.lower() for i in self.unauthenticated_options]:
                 exec("self.{}()".format(option.lower()))
-            except:
-                log.error("Command not found 1")
+            elif self.authenticated and option.lower() in [i.lower() for i in self.authenticated_options]:
+                exec("self.{}()".format(option.lower()))
+            else:
+                log.error("Command not found: {}".format(option))
 
 
     def unauthenticated_menu(self):
-        print("""
-    =============
-        Menu:
-    -------------
-    · Close
-    · Register
-    · Login
-    =============
-        """)
+        print("=" * 20)
+        print("\tMenu:")
+        print("-" * 20)
+        for option in self.unauthenticated_options:
+            print("· ", option)
+        print("=" * 20)
 
 
     def authenticated_menu(self):
-        print("""
-    =============
-        Menu:
-    -------------
-    · Close
-    · Logout
-    =============
-        """)
+        print("=" * 20)
+        print("\tMenu:")
+        print("-" * 20)
+        for option in self.authenticated_options:
+            print("· ", option)
+        print("=" * 20)
 
 
     async def start(self, event):
@@ -88,30 +90,31 @@ class App(object):
 
     def login(self):
         # Iniciar sesión con una cuenta
-        self.current_user_jid = "test@alumchat.xyz"
-        self.password = "12345"
+        if not self.current_user_jid:
+            self.current_user_jid = input("jid: [test@alumchat.xyz] ")
 
-        self.client = Client(self.current_user_jid, self.password, "echobot@alumchat.xyz", "Test message 2")
-        self.client.register_plugin("xep_0030") # Service Discovery
-        self.client.register_plugin("xep_0199") # XMPP Ping
+        if not self.current_user_jid:
+            self.current_user_jid = "test@alumchat.xyz"
+        
+        if not self.password:
+            self.password = input("password: [12345] ")
+
+        if not self.password:
+            self.password = "12345"
 
         # Connect to the XMPP server and start processing XMPP stanzas.
+        self.client = Client(self.current_user_jid, self.password)
+        self.client.register_plugin("xep_0030") # Service Discovery
+        self.client.register_plugin("xep_0199") # XMPP Ping
         self.client.connect()
         self.client.process(forever=False)
-
-
-
-        # super().__init__(self.current_user_jid, self.password)
-        # client.connect()
-        # client.process(forever=False)
-
-        # self.add_event_handler("session_start", self.start)
+        self.authenticated = True
 
 
     def logout(self):
         # Cerrar sesión con una cuenta
-        # self.disconnect()
-        pass
+        self.authenticated = False
+        self.client.disconnect()
 
 
     def close(self):
