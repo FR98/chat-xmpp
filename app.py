@@ -24,22 +24,44 @@ logging.basicConfig(level=args.loglevel, format='%(levelname)-8s %(message)s')
 
 class Client(ClientXMPP):
 
-    def __init__(self, jid, password, jid_receiver, message):
-        # ClientXMPP.__init__(self, jid, password)
-        super().__init__(jid, password)
-        self.jid = jid
-        self.password = password
-        self.jid_receiver = jid_receiver
-        self.message = message
+    def __init__(self):
+        self.jid = None
+        self.password = None
+        self.running = True
+        self.authenticated = False
 
-        self.add_event_handler('session_start', self.start)
+        client.register_plugin('xep_0030') # Service Discovery
+        client.register_plugin('xep_0199') # XMPP Ping
+
+    def app(self):
+        while self.running:
+            if self.authenticated:
+                self.unauthenticated_menu()
+            else:
+                self.authenticated_menu()
+
+            input("NEXT")
+
+    def unauthenticated_menu(self):
+        print("""
+-----------------
+        Menu:
+    1. Register
+    2. Login
+-----------------
+        """)
+
+    def authenticated_menu(self):
+        print("""
+-----------------
+        Menu:
+    1. Logout
+-----------------
+        """)
 
     async def start(self, event):
-        self.send_presence()
         await self.get_roster()
-
-        self.send_message(mto=self.jid_receiver, mbody=self.message, mtype='chat')
-        self.disconnect()
+        self.private_chat()
 
     def register(self):
         # Registrar una nueva cuenta en el servidor
@@ -47,11 +69,21 @@ class Client(ClientXMPP):
 
     def login(self):
         # Iniciar sesión con una cuenta
-        pass
+        self.jid = 'test@alumchat.xyz'
+        self.password = '12345'
+
+        super().__init__(self.jid, self.password)
+        client.connect()
+        client.process(forever=False)
+
+        self.add_event_handler('session_start', self.start)
 
     def logout(self):
         # Cerrar sesión con una cuenta
-        pass
+        self.disconnect()
+
+    def close(self):
+        self.running = False
 
     def destroy_account(self):
         # Eliminar la cuenta del servidor
@@ -75,6 +107,9 @@ class Client(ClientXMPP):
 
     def private_chat(self):
         # Comunicación 1 a 1 con cualquier usuario/contacto
+        receiver_jid = 'echobot@alumchat.xyz'
+        message = input("Message")
+        self.send_message(mto=receiver_jid, mbody=message, mtype='chat')
         pass
 
     def group_chat(self):
@@ -83,7 +118,7 @@ class Client(ClientXMPP):
 
     def set_presence_message(self):
         # Definir mensaje de presencia
-        pass
+        self.send_presence()
 
     def send_notifications(self):
         # Enviar/recibir notificaciones
@@ -104,10 +139,4 @@ class Client(ClientXMPP):
 
 
 if __name__ == '__main__':
-    client = Client('test@alumchat.xyz', '12345', 'echobot@alumchat.xyz', 'Test message')
-    client.register_plugin('xep_0030') # Service Discovery
-    client.register_plugin('xep_0199') # XMPP Ping
-
-    # Connect to the XMPP server and start processing XMPP stanzas.
-    client.connect()
-    client.process(forever=False)
+    client = Client()
