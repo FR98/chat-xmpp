@@ -2,24 +2,79 @@
     Author: Francisco Rosal
 """
 
+import logging
+
 from slixmpp import ClientXMPP
+from slixmpp.exceptions import IqError, IqTimeout
 
 class Client(ClientXMPP):
 
     def __init__(self, jid, password):
-        # ClientXMPP.__init__(self, jid, password)
         super().__init__(jid, password)
         self.jid = jid
         self.password = password
 
+        self.authenticated = True
+        self.authenticated_options = ["Logout",  "Chat"]
+
         self.add_event_handler("session_start", self.start)
+        self.add_event_handler("register", self.register)
 
 
-    async def start(self, event):
+    def start(self, event):
+    # async def start(self, event):
         self.send_presence()
-        await self.get_roster()
+        # await self.get_roster()
+        self.get_roster()
 
-        self.private_chat()
+        while self.authenticated:
+            self.authenticated_menu()
+
+            option = input("> ")
+
+            if self.authenticated and option.lower() in [i.lower() for i in self.authenticated_options]:
+                exec("self.{}()".format(option.lower()))
+            else:
+                print("Command not found: {}".format(option))
+    
+
+    def authenticated_menu(self):
+        print("=" * 20)
+        print("\tMenu 2:")
+        print("-" * 20)
+        for option in self.authenticated_options:
+            print("· ", option)
+        print("=" * 20)
+
+
+    async def register(self, iq):
+        print("REGISTER")
+        # Registrar una nueva cuenta en el servidor
+        resp = self.Iq()
+        resp['type'] = 'set'
+        resp['register']['username'] = self.boundjid.user
+        resp['register']['password'] = self.password
+
+        try:
+            await resp.send()
+            logging.info("Account created for %s!" % self.boundjid)
+        except IqError as e:
+            logging.error("Could not register account: %s" %
+                    e.iq['error']['text'])
+            self.disconnect()
+        except IqTimeout:
+            logging.error("No response from server.")
+            self.disconnect()
+
+
+    def logout(self):
+        self.authenticated = False
+        self.disconnect()
+
+
+    def destroy_account(self):
+        # Eliminar la cuenta del servidor
+        pass
 
 
     def list_users(self):
@@ -42,7 +97,7 @@ class Client(ClientXMPP):
         pass
 
 
-    def private_chat(self):
+    def chat(self):
         # Comunicación 1 a 1 con cualquier usuario/contacto
         jid_receiver = input("receiver: [echobot@alumchat.xyz] ")
 
@@ -52,7 +107,6 @@ class Client(ClientXMPP):
         message = input("message: ")
 
         self.send_message(mto=jid_receiver, mbody=message, mtype="chat")
-        self.disconnect()        
 
 
     def group_chat(self):
