@@ -40,7 +40,7 @@ class Client(ClientXMPP):
 
     def authenticated_menu(self):
         print("=" * 20)
-        print("\tMenu 2:")
+        print("\tAuthenticated Menu:")
         print("-" * 20)
         for option in self.authenticated_options:
             print("· ", option)
@@ -48,7 +48,6 @@ class Client(ClientXMPP):
 
 
     async def register(self, iq):
-        print("REGISTER")
         # Registrar una nueva cuenta en el servidor
         resp = self.Iq()
         resp['type'] = 'set'
@@ -99,10 +98,10 @@ class Client(ClientXMPP):
 
     def chat(self):
         # Comunicación 1 a 1 con cualquier usuario/contacto
-        jid_receiver = input("receiver: [echobot@alumchat.xyz] ")
+        jid_receiver = input("receiver: [testw@alumchat.xyz] ")
 
         if not jid_receiver:
-            jid_receiver = "echobot@alumchat.xyz"
+            jid_receiver = "testw@alumchat.xyz"
 
         message = input("message: ")
 
