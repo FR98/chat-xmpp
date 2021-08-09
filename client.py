@@ -79,8 +79,10 @@ class Client(ClientXMPP):
         self.authenticated = False
         self.disconnect()
 
+
     def list_contacts(self):
         # Mostrar todos los contactos y su estado
+        # TODO: Falta mostrar su estado
         print("\n\nCONTACTS:")
         for contact in self.contacts:
             print("· ", contact)
@@ -116,11 +118,13 @@ class Client(ClientXMPP):
 
     def list_users(self):
         # Mostrar todos los usuarios y su estado
+        # TODO
         pass
 
 
-    def show_user_detail(self):
+    def show_user(self):
         # Mostrar detalles de contacto de un usuario
+        # TODO
         pass
 
 
@@ -145,6 +149,7 @@ class Client(ClientXMPP):
 
     def group_chat(self):
         # Participar en conversaciones grupales
+        # TODO
         pass
 
 
@@ -183,24 +188,29 @@ class Client(ClientXMPP):
 
     def send_notifications(self):
         # Enviar/recibir notificaciones
+        # TODO
         pass
 
 
     def receive_notifications(self):
         # Recibir notificaciones
+        # TODO
         pass
 
 
     def send_files(self):
         # Enviar/recibir archivos
+        # TODO
         pass
 
 
     def receive_files(self):
         # Recibir archivos
+        # TODO
         pass
 
 
     def destroy_account(self):
         # Eliminar la cuenta del servidor
+        # TODO
         pass
