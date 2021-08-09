@@ -15,7 +15,7 @@ class Client(ClientXMPP):
         self.password = password
 
         self.authenticated = True
-        self.authenticated_options = ["Logout",  "Chat"]
+        self.authenticated_options = ["Logout",  "Chat", "Presence"]
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
@@ -24,7 +24,7 @@ class Client(ClientXMPP):
 
     # def start(self, event):
     async def start(self, event):
-        self.set_presence_message('chat', 'Available')
+        self.presence('chat')
         # self.get_roster()
         await self.get_roster()
 
@@ -35,6 +35,7 @@ class Client(ClientXMPP):
 
             if self.authenticated and option.lower() in [i.lower() for i in self.authenticated_options]:
                 exec("self.{}()".format(option.lower()))
+                await self.get_roster()
             else:
                 print("Command not found: {}".format(option))
 
@@ -114,8 +115,30 @@ class Client(ClientXMPP):
         pass
 
 
-    def set_presence_message(self, show, status):
+    def presence(self, show=None):
         # Definir mensaje de presencia
+        if not show:
+            show = input("show: [chat, away, xa, dnd, custom] ")
+
+        if show not in ["chat", "away", "xa", "dnd", "custom"]:
+            show = "chat"
+
+        if show == "chat":
+            status = "Available"
+        elif show == "away":
+            status = "Unavailable"
+        elif show == "xa":
+            status = "Bye"
+        elif show == "dnd":
+            status = "Do not Disturb"
+        elif show == "custom":
+            show = input("show: ")
+            status = input("status: ")
+
+        if show not in ["chat", "away", "xa", "dnd"]:
+            show = "chat"
+            status = "Available"
+
         self.send_presence(pshow=show, pstatus=status)
 
 
