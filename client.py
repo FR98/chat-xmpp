@@ -11,7 +11,7 @@ class Client(ClientXMPP):
 
     def __init__(self, jid, password):
         super().__init__(jid, password)
-        self.jid = jid
+        # self.jid = jid
         self.password = password
 
         self.authenticated = True
@@ -19,13 +19,14 @@ class Client(ClientXMPP):
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
+        # Event triggered: connected
 
 
-    def start(self, event):
-    # async def start(self, event):
-        self.send_presence()
-        # await self.get_roster()
-        self.get_roster()
+    # def start(self, event):
+    async def start(self, event):
+        self.set_presence_message('chat', 'Available')
+        # self.get_roster()
+        await self.get_roster()
 
         while self.authenticated:
             self.authenticated_menu()
@@ -36,7 +37,7 @@ class Client(ClientXMPP):
                 exec("self.{}()".format(option.lower()))
             else:
                 print("Command not found: {}".format(option))
-    
+
 
     def authenticated_menu(self):
         print("=" * 20)
@@ -113,9 +114,9 @@ class Client(ClientXMPP):
         pass
 
 
-    def set_presence_message(self):
+    def set_presence_message(self, show, status):
         # Definir mensaje de presencia
-        pass
+        self.send_presence(pshow=show, pstatus=status)
 
 
     def send_notifications(self):

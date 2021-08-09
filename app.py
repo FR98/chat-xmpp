@@ -80,7 +80,7 @@ class App(object):
         self.client.register_plugin("xep_0199") # XMPP Ping
 
         self.client.connect()
-        self.client.process(forever=False)
+        self.client.process()
 
 
     def register(self):
