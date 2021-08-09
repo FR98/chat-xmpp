@@ -52,12 +52,12 @@ class App(object):
 
 
     def unauthenticated_menu(self):
-        print("=" * 20)
+        print("=" * 25)
         print("\tUnauthenticated Menu:")
-        print("-" * 20)
+        print("-" * 25)
         for option in self.unauthenticated_options:
             print("· ", option)
-        print("=" * 20)
+        print("=" * 25)
 
 
     def login(self):

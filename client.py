@@ -10,23 +10,30 @@ from slixmpp.exceptions import IqError, IqTimeout
 class Client(ClientXMPP):
 
     def __init__(self, jid, password):
-        super().__init__(jid, password)
-        # self.jid = jid
+        try:
+            super().__init__(jid, password)
+        except IqError:
+            logging.error("Something went wrong.")
+            self.logout()
+        except IqTimeout:
+            logging.error("No response from server.")
+            self.logout()
+
         self.password = password
 
+        self.contacts = []
+
         self.authenticated = True
-        self.authenticated_options = ["Logout",  "Chat", "Presence"]
+        self.authenticated_options = ["Logout",  "Chat", "Presence", "List Contacts", "Add Contact"]
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
-        # Event triggered: connected
 
 
-    # def start(self, event):
     async def start(self, event):
         self.presence('chat')
-        # self.get_roster()
-        await self.get_roster()
+        roster = await self.get_roster()
+        self.update_contacts(roster)
 
         while self.authenticated:
             self.authenticated_menu()
@@ -34,19 +41,20 @@ class Client(ClientXMPP):
             option = input("> ")
 
             if self.authenticated and option.lower() in [i.lower() for i in self.authenticated_options]:
-                exec("self.{}()".format(option.lower()))
-                await self.get_roster()
+                exec("self.{}()".format(option.replace(" ", "_").lower()))
+                roster = await self.get_roster()
+                self.update_contacts(roster)
             else:
                 print("Command not found: {}".format(option))
 
 
     def authenticated_menu(self):
-        print("=" * 20)
+        print("=" * 25)
         print("\tAuthenticated Menu:")
-        print("-" * 20)
+        print("-" * 25)
         for option in self.authenticated_options:
             print("· ", option)
-        print("=" * 20)
+        print("=" * 25)
 
 
     async def register(self, iq):
@@ -59,37 +67,55 @@ class Client(ClientXMPP):
         try:
             await resp.send()
             logging.info("Account created for %s!" % self.boundjid)
-        except IqError as e:
-            logging.error("Could not register account: %s" %
-                    e.iq['error']['text'])
-            self.disconnect()
+        except IqError:
+            logging.error("Something went wrong.")
+            self.logout()
         except IqTimeout:
             logging.error("No response from server.")
-            self.disconnect()
+            self.logout()
 
 
     def logout(self):
         self.authenticated = False
         self.disconnect()
 
+    def list_contacts(self):
+        # Mostrar todos los contactos y su estado
+        print("\n\nCONTACTS:")
+        for contact in self.contacts:
+            print("· ", contact)
+        print("-" * 25)
+        print("\n\n")
 
-    def destroy_account(self):
-        # Eliminar la cuenta del servidor
-        pass
+
+    def update_contacts(self, roster):
+        for contact in roster['roster']['items'].keys():
+            if contact not in self.contacts:
+                self.contacts.append(contact)
+
+
+    def add_contact(self):
+        # Agregar un usuario a los contactos
+        try:
+            contact_jid = input("Contact JID: ")
+
+            self.send_presence_subscription(pto = contact_jid)
+
+            self.send_message(
+                mto = contact_jid,
+                mbody = "Hi! I added you to my roster",
+                mtype = "chat",
+                mfrom = self.boundjid.bare
+            )
+
+        except IqError:
+            logging.error("Something went wrong.")
+        except IqTimeout:
+            logging.error("No response from server.")
 
 
     def list_users(self):
         # Mostrar todos los usuarios y su estado
-        pass
-
-
-    def list_contacts(self):
-        # Mostrar todos los contactos y su estado
-        pass
-
-
-    def add_user_to_contacts(self):
-        # Agregar un usuario a los contactos
         pass
 
 
@@ -100,14 +126,21 @@ class Client(ClientXMPP):
 
     def chat(self):
         # Comunicación 1 a 1 con cualquier usuario/contacto
-        jid_receiver = input("receiver: [testw@alumchat.xyz] ")
+        try:
+            jid_receiver = input("receiver: [testw@alumchat.xyz] ")
 
-        if not jid_receiver:
-            jid_receiver = "testw@alumchat.xyz"
+            if not jid_receiver:
+                jid_receiver = "testw@alumchat.xyz"
 
-        message = input("message: ")
+            message = input("message: ")
 
-        self.send_message(mto=jid_receiver, mbody=message, mtype="chat")
+            self.send_message(mto=jid_receiver, mbody=message, mtype="chat")
+
+            logging.info("Message sent.")
+        except IqError:
+            logging.error("Something went wrong.")
+        except IqTimeout:
+            logging.error("No response from server.")
 
 
     def group_chat(self):
@@ -139,7 +172,13 @@ class Client(ClientXMPP):
             show = "chat"
             status = "Available"
 
-        self.send_presence(pshow=show, pstatus=status)
+        try:
+            self.send_presence(pshow=show, pstatus=status)
+            logging.info("Presence setted.")
+        except IqError:
+            logging.error("Something went wrong.")
+        except IqTimeout:
+            logging.error("No response from server.")
 
 
     def send_notifications(self):
@@ -159,4 +198,9 @@ class Client(ClientXMPP):
 
     def receive_files(self):
         # Recibir archivos
+        pass
+
+
+    def destroy_account(self):
+        # Eliminar la cuenta del servidor
         pass
