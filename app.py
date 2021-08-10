@@ -43,6 +43,7 @@ class App(object):
         while self.running:
             self.unauthenticated_menu()
 
+            self.login()
             option = input("> ")
 
             if option.lower() in [i.lower() for i in self.unauthenticated_options]:
@@ -78,6 +79,7 @@ class App(object):
         self.client = Client(self.current_user_jid, self.password)
         self.client.register_plugin("xep_0030") # Service Discovery
         self.client.register_plugin("xep_0199") # XMPP Ping
+        self.client.register_plugin("xep_0133") # Service Administration
 
         self.client.connect()
         self.client.process()

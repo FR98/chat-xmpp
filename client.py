@@ -24,14 +24,14 @@ class Client(ClientXMPP):
         self.contacts = []
 
         self.authenticated = True
-        self.authenticated_options = ["Logout",  "Chat", "Presence", "List Contacts", "Add Contact"]
+        self.authenticated_options = ["Logout",  "Chat", "Presence", "List Users", "List Contacts", "Add Contact"]
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
 
 
     async def start(self, event):
-        self.presence('chat')
+        self.presence("chat")
         roster = await self.get_roster()
         self.update_contacts(roster)
 
@@ -60,9 +60,9 @@ class Client(ClientXMPP):
     async def register(self, iq):
         # Registrar una nueva cuenta en el servidor
         resp = self.Iq()
-        resp['type'] = 'set'
-        resp['register']['username'] = self.boundjid.user
-        resp['register']['password'] = self.password
+        resp["type"] = "set"
+        resp["register"]["username"] = self.boundjid.user
+        resp["register"]["password"] = self.password
 
         try:
             await resp.send()
@@ -91,7 +91,7 @@ class Client(ClientXMPP):
 
 
     def update_contacts(self, roster):
-        for contact in roster['roster']['items'].keys():
+        for contact in roster["roster"]["items"].keys():
             if contact not in self.contacts:
                 self.contacts.append(contact)
 
