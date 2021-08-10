@@ -24,7 +24,7 @@ class Client(ClientXMPP):
         self.contacts = []
 
         self.authenticated = True
-        self.authenticated_options = ["Logout",  "Chat", "Presence", "List Users", "List Contacts", "Add Contact"]
+        self.authenticated_options = ["Logout",  "Chat", "Presence", "List Contacts", "Add Contact"]
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
@@ -82,7 +82,6 @@ class Client(ClientXMPP):
 
     def list_contacts(self):
         # Mostrar todos los contactos y su estado
-        # TODO: Falta mostrar su estado
         print("\n\nCONTACTS:")
         for contact in self.contacts:
             print("· ", contact)
@@ -151,6 +150,10 @@ class Client(ClientXMPP):
         # Participar en conversaciones grupales
         # TODO
         pass
+
+    def receive_message(self, msg):
+        logging.info(msg)
+        print("{} > {}".format(str(msg["from"]).split("@")[0], msg["body"]))
 
 
     def presence(self, show=None):

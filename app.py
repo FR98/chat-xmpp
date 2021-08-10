@@ -65,9 +65,11 @@ class App(object):
         # Iniciar sesión con una cuenta
         if not self.current_user_jid:
             self.current_user_jid = input("jid: [ros18676@alumchat.xyz] ")
+            # self.current_user_jid = input("jid: [ros@alumchat.xyz] ")
 
         if not self.current_user_jid:
             self.current_user_jid = "ros18676@alumchat.xyz"
+            # self.current_user_jid = "ros@alumchat.xyz"
 
         if not self.password:
             self.password = input("password: [123456] ")
