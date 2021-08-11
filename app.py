@@ -3,9 +3,9 @@
 """
 
 import logging
+from client import Client
 from argparse import ArgumentParser
 
-from client import Client
 
 # Setup the command line arguments and logging.
 parser = ArgumentParser()
@@ -79,9 +79,14 @@ class App(object):
 
         # Connect to the XMPP server and start processing XMPP stanzas.
         self.client = Client(self.current_user_jid, self.password)
+        self.client.register_plugin("xep_0004") # Data forms
         self.client.register_plugin("xep_0030") # Service Discovery
-        self.client.register_plugin("xep_0199") # XMPP Ping
+        self.client.register_plugin("xep_0066") # Out-of-band Data
+        self.client.register_plugin('xep_0071') # XHTML-IM
         self.client.register_plugin("xep_0085") # Chat State Notifications
+        self.client.register_plugin('xep_0128') # Service Discovery Extensions
+        self.client.register_plugin("xep_0199") # XMPP Ping
+        self.client.register_plugin('xep_0363') # HTPP File Upload
 
         self.client.connect()
         self.client.process()
@@ -103,11 +108,15 @@ class App(object):
 
         # Connect to the XMPP server and start processing XMPP stanzas.
         self.client = Client(self.current_user_jid, self.password)
-        self.client.register_plugin("xep_0030") # Service Discovery
-        self.client.register_plugin("xep_0199") # XMPP Ping
         self.client.register_plugin("xep_0004") # Data forms
+        self.client.register_plugin("xep_0030") # Service Discovery
         self.client.register_plugin("xep_0066") # Out-of-band Data
+        self.client.register_plugin('xep_0071') # XHTML-IM
         self.client.register_plugin("xep_0077") # In-band Registration
+        self.client.register_plugin("xep_0085") # Chat State Notifications
+        self.client.register_plugin('xep_0128') # Service Discovery Extensions
+        self.client.register_plugin("xep_0199") # XMPP Ping
+        self.client.register_plugin('xep_0363') # HTPP File Upload
 
         # Some servers don't advertise support for inband registration, even
         # though they allow it. If this applies to your server, use:

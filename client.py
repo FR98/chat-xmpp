@@ -6,6 +6,7 @@ import logging
 from slixmpp import ClientXMPP
 from slixmpp.exceptions import IqError, IqTimeout
 
+
 class Client(ClientXMPP):
 
     def __init__(self, jid, password):
@@ -23,7 +24,7 @@ class Client(ClientXMPP):
         self.contacts = []
 
         self.authenticated = True
-        self.authenticated_options = ["Logout",  "Chat", "Presence", "List Contacts", "Add Contact"]
+        self.authenticated_options = ["Logout", "Chat", "Presence", "List Contacts", "Add Contact", "Send File"]
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
@@ -87,11 +88,11 @@ class Client(ClientXMPP):
 
     def list_contacts(self):
         # Mostrar todos los contactos y su estado
-        print("\n\nCONTACTS:")
+        print("\nCONTACTS:")
         for contact in self.contacts:
             print("· ", contact)
         print("-" * 40)
-        print("\n\n")
+        print("\n")
 
 
     def update_contacts(self, roster):
@@ -249,8 +250,32 @@ class Client(ClientXMPP):
 
     def send_file(self):
         # Enviar archivo
-        # TODO
-        pass
+        filename = "test.txt"
+        receiver = "testw@alumchat.xyz"
+        domain = "httpfileupload.alumchat.xyz"
+
+        try:
+            logging.info('Uploading file %s...', filename)
+
+            # url = await self['xep_0363'].upload_file(filename, domain=domain, timeout=10)
+            url = self['xep_0363'].upload_file(filename, domain=domain, timeout=10)
+
+            logging.info('Upload success!')
+            logging.info('Sending file to %s', receiver)
+
+            html = (
+                f'<body xmlns="http://www.w3.org/1999/xhtml">'
+                f'<a href="{url}">{url}</a></body>'
+            )
+
+            message = self.make_message(mto=receiver, mbody=url, mhtml=html)
+            message['oob']['url'] = url
+            message.send()
+        except IqError:
+            logging.error("Something went wrong.")
+        except IqTimeout:
+            logging.error("No response from server.")
+
 
 
     def receive_file(self):
