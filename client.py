@@ -24,7 +24,7 @@ class Client(ClientXMPP):
         self.contacts = []
 
         self.authenticated = True
-        self.authenticated_options = ["Logout", "Chat", "Presence", "List Contacts", "Add Contact", "Send File"]
+        self.authenticated_options = ["Logout", "Chat", "Presence", "List Contacts", "Add Contact", "Send File", "Destroy Account"]
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
@@ -207,8 +207,8 @@ class Client(ClientXMPP):
             # """.format(state)
 
             msg = self.Message()
-            msg['chat_state'] = state
-            msg['to'] = to
+            msg["chat_state"] = state
+            msg["to"] = to
 
             msg.send()
             logging.info("Notification sent!")
@@ -221,31 +221,31 @@ class Client(ClientXMPP):
     def receive_chatstate_active(self, chatstate):
         # Recibir notificaciones
         logging.info(chatstate)
-        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Is active'))
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Is active"))
 
 
     def receive_chatstate_inactive(self, chatstate):
         # Recibir notificaciones
         logging.info(chatstate)
-        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Is inactive'))
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Is inactive"))
 
 
     def receive_chatstate_composing(self, chatstate):
         # Recibir notificaciones
         logging.info(chatstate)
-        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Is typing...'))
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Is typing..."))
 
 
     def receive_chatstate_paused(self, chatstate):
         # Recibir notificaciones
         logging.info(chatstate)
-        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Stop typing'))
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Stop typing"))
 
 
     def receive_chatstate_gone(self, chatstate):
         # Recibir notificaciones
         logging.info(chatstate)
-        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Is gone'))
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Is gone"))
 
 
     def send_file(self):
@@ -255,21 +255,21 @@ class Client(ClientXMPP):
         domain = "httpfileupload.alumchat.xyz"
 
         try:
-            logging.info('Uploading file %s...', filename)
+            logging.info("Uploading file %s...", filename)
 
-            # url = await self['xep_0363'].upload_file(filename, domain=domain, timeout=10)
-            url = self['xep_0363'].upload_file(filename, domain=domain, timeout=10)
+            # url = await self["xep_0363"].upload_file(filename, domain=domain, timeout=10)
+            url = self["xep_0363"].upload_file(filename, domain=domain, timeout=10)
 
-            logging.info('Upload success!')
-            logging.info('Sending file to %s', receiver)
+            logging.info("Upload success!")
+            logging.info("Sending file to %s", receiver)
 
             html = (
-                f'<body xmlns="http://www.w3.org/1999/xhtml">'
-                f'<a href="{url}">{url}</a></body>'
+                f"<body xmlns='http://www.w3.org/1999/xhtml'>"
+                f"<a href='{url}'>{url}</a></body>"
             )
 
             message = self.make_message(mto=receiver, mbody=url, mhtml=html)
-            message['oob']['url'] = url
+            message["oob"]["url"] = url
             message.send()
         except IqError:
             logging.error("Something went wrong.")
@@ -286,5 +286,19 @@ class Client(ClientXMPP):
 
     def destroy_account(self):
         # Eliminar la cuenta del servidor
-        # TODO
-        pass
+        try:
+            if input("Are you sure you want to delete? [yes/no]: ") == "yes":
+                self.register_plugin("xep_0077") # In-band Registration
+
+                resp = self.Iq()
+                resp["type"] = "set"
+                resp["from"] = self.boundjid.user
+                resp["register"]["remove"] = True
+
+                resp.send()
+                logging.info("Account deleted succesfully.")
+                self.logout()
+        except IqError:
+            logging.error("Something went wrong.")
+        except IqTimeout:
+            logging.error("No response from server.")

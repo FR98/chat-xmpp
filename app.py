@@ -43,7 +43,7 @@ class App(object):
         while self.running:
             self.unauthenticated_menu()
 
-            self.login()
+            # self.login()
             option = input("> ")
 
             if option.lower() in [i.lower() for i in self.unauthenticated_options]:
@@ -95,10 +95,10 @@ class App(object):
     def register(self):
         # Iniciar sesión con una cuenta
         if not self.current_user_jid:
-            self.current_user_jid = input("jid: [ros18676@alumchat.xyz] ")
+            self.current_user_jid = input("jid: [delete18676@alumchat.xyz] ")
 
         if not self.current_user_jid:
-            self.current_user_jid = "ros18676@alumchat.xyz"
+            self.current_user_jid = "delete18676@alumchat.xyz"
 
         if not self.password:
             self.password = input("password: [123456] ")
