@@ -3,7 +3,6 @@
 """
 
 import logging
-
 from slixmpp import ClientXMPP
 from slixmpp.exceptions import IqError, IqTimeout
 
@@ -28,6 +27,12 @@ class Client(ClientXMPP):
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
+        self.add_event_handler("message", self.receive_message)
+        self.add_event_handler("chatstate_active", self.receive_chatstate_active)
+        self.add_event_handler("chatstate_inactive", self.receive_chatstate_inactive)
+        self.add_event_handler("chatstate_composing", self.receive_chatstate_composing)
+        self.add_event_handler("chatstate_paused", self.receive_chatstate_paused)
+        self.add_event_handler("chatstate_gone", self.receive_chatstate_gone)
 
 
     async def start(self, event):
@@ -49,12 +54,12 @@ class Client(ClientXMPP):
 
 
     def authenticated_menu(self):
-        print("=" * 25)
+        print("=" * 40)
         print("\tAuthenticated Menu:")
-        print("-" * 25)
+        print("-" * 40)
         for option in self.authenticated_options:
             print("· ", option)
-        print("=" * 25)
+        print("=" * 40)
 
 
     async def register(self, iq):
@@ -85,7 +90,7 @@ class Client(ClientXMPP):
         print("\n\nCONTACTS:")
         for contact in self.contacts:
             print("· ", contact)
-        print("-" * 25)
+        print("-" * 40)
         print("\n\n")
 
 
@@ -135,8 +140,10 @@ class Client(ClientXMPP):
             if not jid_receiver:
                 jid_receiver = "testw@alumchat.xyz"
 
+            self.send_chat_status(jid_receiver, "composing")
             message = input("message: ")
 
+            self.send_chat_status(jid_receiver, "paused")
             self.send_message(mto=jid_receiver, mbody=message, mtype="chat")
 
             logging.info("Message sent.")
@@ -189,26 +196,65 @@ class Client(ClientXMPP):
             logging.error("No response from server.")
 
 
-    def send_notifications(self):
-        # Enviar/recibir notificaciones
-        # TODO
-        pass
+    def send_chat_status(self, to, state):
+        # Enviar notificaciones
+        try:
+            # xmlstring = """
+            #     <message>
+            #         <{} xmlns="http://jabber.org/protocol/chatstates" />
+            #     </message>
+            # """.format(state)
+
+            msg = self.Message()
+            msg['chat_state'] = state
+            msg['to'] = to
+
+            msg.send()
+            logging.info("Notification sent!")
+        except IqError:
+            logging.error("Something went wrong.")
+        except IqTimeout:
+            logging.error("No response from server.")
 
 
-    def receive_notifications(self):
+    def receive_chatstate_active(self, chatstate):
         # Recibir notificaciones
+        logging.info(chatstate)
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Is active'))
+
+
+    def receive_chatstate_inactive(self, chatstate):
+        # Recibir notificaciones
+        logging.info(chatstate)
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Is inactive'))
+
+
+    def receive_chatstate_composing(self, chatstate):
+        # Recibir notificaciones
+        logging.info(chatstate)
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Is typing...'))
+
+
+    def receive_chatstate_paused(self, chatstate):
+        # Recibir notificaciones
+        logging.info(chatstate)
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Stop typing'))
+
+
+    def receive_chatstate_gone(self, chatstate):
+        # Recibir notificaciones
+        logging.info(chatstate)
+        print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], 'Is gone'))
+
+
+    def send_file(self):
+        # Enviar archivo
         # TODO
         pass
 
 
-    def send_files(self):
-        # Enviar/recibir archivos
-        # TODO
-        pass
-
-
-    def receive_files(self):
-        # Recibir archivos
+    def receive_file(self):
+        # Recibir archivo
         # TODO
         pass
 

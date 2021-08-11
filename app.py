@@ -53,12 +53,12 @@ class App(object):
 
 
     def unauthenticated_menu(self):
-        print("=" * 25)
+        print("=" * 40)
         print("\tUnauthenticated Menu:")
-        print("-" * 25)
+        print("-" * 40)
         for option in self.unauthenticated_options:
             print("· ", option)
-        print("=" * 25)
+        print("=" * 40)
 
 
     def login(self):
@@ -81,7 +81,7 @@ class App(object):
         self.client = Client(self.current_user_jid, self.password)
         self.client.register_plugin("xep_0030") # Service Discovery
         self.client.register_plugin("xep_0199") # XMPP Ping
-        self.client.register_plugin("xep_0133") # Service Administration
+        self.client.register_plugin("xep_0085") # Chat State Notifications
 
         self.client.connect()
         self.client.process()
@@ -104,8 +104,8 @@ class App(object):
         # Connect to the XMPP server and start processing XMPP stanzas.
         self.client = Client(self.current_user_jid, self.password)
         self.client.register_plugin("xep_0030") # Service Discovery
-        self.client.register_plugin("xep_0004") # Data forms
         self.client.register_plugin("xep_0199") # XMPP Ping
+        self.client.register_plugin("xep_0004") # Data forms
         self.client.register_plugin("xep_0066") # Out-of-band Data
         self.client.register_plugin("xep_0077") # In-band Registration
 
