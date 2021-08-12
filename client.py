@@ -46,7 +46,9 @@ class Client(ClientXMPP):
 
             option = input("> ")
 
-            if self.authenticated and option.lower() in [i.lower() for i in self.authenticated_options]:
+            if option.replace(" ", "_").lower() == "send_file":
+                await self.send_file()
+            elif self.authenticated and option.lower() in [i.lower() for i in self.authenticated_options]:
                 exec("self.{}()".format(option.replace(" ", "_").lower()))
                 roster = await self.get_roster()
                 self.update_contacts(roster)
@@ -142,10 +144,11 @@ class Client(ClientXMPP):
                 jid_receiver = "testw@alumchat.xyz"
 
             self.send_chat_status(jid_receiver, "composing")
+
             message = input("message: ")
+            self.send_message(mto=jid_receiver, mbody=message, mtype="chat")
 
             self.send_chat_status(jid_receiver, "paused")
-            self.send_message(mto=jid_receiver, mbody=message, mtype="chat")
 
             logging.info("Message sent.")
         except IqError:
@@ -159,7 +162,9 @@ class Client(ClientXMPP):
         # TODO
         pass
 
+
     def receive_message(self, msg):
+        # Recibir mensajes y archivos
         logging.info(msg)
         print("{} > {}".format(str(msg["from"]).split("@")[0], msg["body"]))
 
@@ -248,17 +253,17 @@ class Client(ClientXMPP):
         print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Is gone"))
 
 
-    def send_file(self):
+    async def send_file(self):
         # Enviar archivo
-        filename = "test.txt"
+        filename = "./test.txt"
         receiver = "testw@alumchat.xyz"
+        # domain = "httpfileupload.alumchat.xyz"
         domain = "httpfileupload.alumchat.xyz"
 
         try:
             logging.info("Uploading file %s...", filename)
 
-            # url = await self["xep_0363"].upload_file(filename, domain=domain, timeout=10)
-            url = self["xep_0363"].upload_file(filename, domain=domain, timeout=10)
+            url = await self["xep_0363"].upload_file(filename, domain=domain, timeout=10)
 
             logging.info("Upload success!")
             logging.info("Sending file to %s", receiver)
@@ -271,17 +276,10 @@ class Client(ClientXMPP):
             message = self.make_message(mto=receiver, mbody=url, mhtml=html)
             message["oob"]["url"] = url
             message.send()
-        except IqError:
+        except IqError as e:
             logging.error("Something went wrong.")
         except IqTimeout:
             logging.error("No response from server.")
-
-
-
-    def receive_file(self):
-        # Recibir archivo
-        # TODO
-        pass
 
 
     def destroy_account(self):
