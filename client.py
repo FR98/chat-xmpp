@@ -24,7 +24,7 @@ class Client(ClientXMPP):
         self.contacts = []
 
         self.authenticated = True
-        self.authenticated_options = ["Logout", "Chat", "Presence", "List Contacts", "Add Contact", "Send File", "Destroy Account"]
+        self.authenticated_options = ["Logout", "Chat", "Presence", "List Contacts", "Show Contact", "Add Contact", "Send File", "Destroy Account"]
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
@@ -123,16 +123,19 @@ class Client(ClientXMPP):
             logging.error("No response from server.")
 
 
-    def list_users(self):
-        # Mostrar todos los usuarios y su estado
-        # TODO
-        pass
-
-
-    def show_user(self):
+    def show_contact(self):
         # Mostrar detalles de contacto de un usuario
-        # TODO
-        pass
+        self.get_roster()
+
+        contact_jid = input("JID: ")
+        print("\n", contact_jid)
+        connections = self.client_roster.presence(contact_jid)
+
+        if connections == {}:
+            print("No recent session")
+        else:
+            for device, presence in connections.items():
+                print(device, " - ", presence["show"])
 
 
     def chat(self):
@@ -255,10 +258,11 @@ class Client(ClientXMPP):
 
     async def send_file(self):
         # Enviar archivo
-        filename = "./test.txt"
+        filename = "proyecto1.pdf"
         receiver = "testw@alumchat.xyz"
         # domain = "httpfileupload.alumchat.xyz"
-        domain = "httpfileupload.alumchat.xyz"
+        # domain = "httpfileupload.alumchat.xyz"
+        domain = None
 
         try:
             logging.info("Uploading file %s...", filename)

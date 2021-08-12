@@ -24,7 +24,6 @@ class HttpUpload(slixmpp.ClientXMPP):
     def __init__(self, jid, password, recipient, filename, domain=None):
         slixmpp.ClientXMPP.__init__(self, jid, password)
 
-        self.use_ssl = False
         self.recipient = recipient
         self.filename = filename
         self.domain = domain
