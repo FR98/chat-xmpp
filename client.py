@@ -24,7 +24,7 @@ class Client(ClientXMPP):
         self.contacts = []
 
         self.authenticated = True
-        self.authenticated_options = ["Logout", "Chat", "Presence", "List Contacts", "Show Contact", "Add Contact", "Send File", "Destroy Account"]
+        self.authenticated_options = ["", "Logout", "Chat", "Presence", "List Contacts", "Show Contact", "Add Contact", "Send File", "Destroy Account"]
 
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
@@ -46,7 +46,9 @@ class Client(ClientXMPP):
 
             option = input("> ")
 
-            if option.replace(" ", "_").lower() == "send_file":
+            if option.replace(" ", "_").lower() == "":
+                await self.load()
+            elif option.replace(" ", "_").lower() == "send_file":
                 await self.send_file()
             elif self.authenticated and option.lower() in [i.lower() for i in self.authenticated_options]:
                 exec("self.{}()".format(option.replace(" ", "_").lower()))
@@ -54,6 +56,10 @@ class Client(ClientXMPP):
                 self.update_contacts(roster)
             else:
                 print("Command not found: {}".format(option))
+
+
+    async def load(self):
+        await self.get_roster()
 
 
     def authenticated_menu(self):
