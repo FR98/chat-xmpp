@@ -9,6 +9,10 @@ from slixmpp.exceptions import IqError, IqTimeout
 
 class Client(ClientXMPP):
 
+    """
+        XMPP Client
+    """
+
     def __init__(self, jid, password):
         try:
             super().__init__(jid, password)
@@ -24,8 +28,11 @@ class Client(ClientXMPP):
         self.contacts = []
 
         self.authenticated = True
+
+        # Registered authenticated menu options
         self.authenticated_options = ["", "Logout", "Chat", "Presence", "List Contacts", "Show Contact", "Add Contact", "Send File", "Destroy Account"]
 
+        # Defining listeners to events
         self.add_event_handler("session_start", self.start)
         self.add_event_handler("register", self.register)
         self.add_event_handler("message", self.receive_message)
@@ -37,7 +44,9 @@ class Client(ClientXMPP):
 
 
     async def start(self, event):
+        # Setting initial presence on login
         self.presence("chat")
+        # Getting contacts
         roster = await self.get_roster()
         self.update_contacts(roster)
 
@@ -46,6 +55,7 @@ class Client(ClientXMPP):
 
             option = input("> ")
 
+            # Execute the selected user option
             if option.replace(" ", "_").lower() == "":
                 await self.load()
             elif option.replace(" ", "_").lower() == "send_file":
@@ -59,6 +69,7 @@ class Client(ClientXMPP):
 
 
     async def load(self):
+        # This methods is useful to load the data
         await self.get_roster()
 
 
@@ -72,7 +83,7 @@ class Client(ClientXMPP):
 
 
     async def register(self, iq):
-        # Registrar una nueva cuenta en el servidor
+        # Register a new user on the server
         resp = self.Iq()
         resp["type"] = "set"
         resp["register"]["username"] = self.boundjid.user
@@ -95,7 +106,7 @@ class Client(ClientXMPP):
 
 
     def list_contacts(self):
-        # Mostrar todos los contactos y su estado
+        # List all the contacts
         print("\nCONTACTS:")
         for contact in self.contacts:
             print("· ", contact)
@@ -104,18 +115,21 @@ class Client(ClientXMPP):
 
 
     def update_contacts(self, roster):
+        # Get the contacts from the roster
         for contact in roster["roster"]["items"].keys():
             if contact not in self.contacts:
                 self.contacts.append(contact)
 
 
     def add_contact(self):
-        # Agregar un usuario a los contactos
+        # Add contact to my roster
         try:
             contact_jid = input("Contact JID: ")
 
+            # This is actually the add contact to roster
             self.send_presence_subscription(pto = contact_jid)
 
+            # Send friendly message
             self.send_message(
                 mto = contact_jid,
                 mbody = "Hi! I added you to my roster",
@@ -130,7 +144,7 @@ class Client(ClientXMPP):
 
 
     def show_contact(self):
-        # Mostrar detalles de contacto de un usuario
+        # Show contact presence
         self.get_roster()
 
         contact_jid = input("JID: ")
@@ -145,18 +159,20 @@ class Client(ClientXMPP):
 
 
     def chat(self):
-        # Comunicación 1 a 1 con cualquier usuario/contacto
+        # Chat
         try:
             jid_receiver = input("receiver: [testw@alumchat.xyz] ")
 
             if not jid_receiver:
                 jid_receiver = "testw@alumchat.xyz"
 
+            # Set "is typing..." status
             self.send_chat_status(jid_receiver, "composing")
 
             message = input("message: ")
             self.send_message(mto=jid_receiver, mbody=message, mtype="chat")
 
+            # Remove "is typing..." status
             self.send_chat_status(jid_receiver, "paused")
 
             logging.info("Message sent.")
@@ -173,13 +189,13 @@ class Client(ClientXMPP):
 
 
     def receive_message(self, msg):
-        # Recibir mensajes y archivos
+        # Get messages and files
         logging.info(msg)
         print("{} > {}".format(str(msg["from"]).split("@")[0], msg["body"]))
 
 
     def presence(self, show=None):
-        # Definir mensaje de presencia
+        # Set presence messages
         if not show:
             show = input("show: [chat, away, xa, dnd, custom] ")
 
@@ -212,14 +228,8 @@ class Client(ClientXMPP):
 
 
     def send_chat_status(self, to, state):
-        # Enviar notificaciones
+        # Send chat state notifications
         try:
-            # xmlstring = """
-            #     <message>
-            #         <{} xmlns="http://jabber.org/protocol/chatstates" />
-            #     </message>
-            # """.format(state)
-
             msg = self.Message()
             msg["chat_state"] = state
             msg["to"] = to
@@ -233,37 +243,37 @@ class Client(ClientXMPP):
 
 
     def receive_chatstate_active(self, chatstate):
-        # Recibir notificaciones
+        # Receive chat state notifications
         logging.info(chatstate)
         print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Is active"))
 
 
     def receive_chatstate_inactive(self, chatstate):
-        # Recibir notificaciones
+        # Receive chat state notifications
         logging.info(chatstate)
         print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Is inactive"))
 
 
     def receive_chatstate_composing(self, chatstate):
-        # Recibir notificaciones
+        # Receive chat state notifications
         logging.info(chatstate)
         print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Is typing..."))
 
 
     def receive_chatstate_paused(self, chatstate):
-        # Recibir notificaciones
+        # Receive chat state notifications
         logging.info(chatstate)
         print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Stop typing"))
 
 
     def receive_chatstate_gone(self, chatstate):
-        # Recibir notificaciones
+        # Receive chat state notifications
         logging.info(chatstate)
         print("{} > [{}]".format(str(chatstate["from"]).split("@")[0], "Is gone"))
 
 
     async def send_file(self):
-        # Enviar archivo
+        # Send file
         filename = "proyecto1.pdf"
         receiver = "testw@alumchat.xyz"
         # domain = "httpfileupload.alumchat.xyz"
@@ -293,7 +303,7 @@ class Client(ClientXMPP):
 
 
     def destroy_account(self):
-        # Eliminar la cuenta del servidor
+        # Destroy user account
         try:
             if input("Are you sure you want to delete? [yes/no]: ") == "yes":
                 self.register_plugin("xep_0077") # In-band Registration

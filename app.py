@@ -13,45 +13,59 @@ parser.add_argument("-q", "--quiet", help="set logging to ERROR", action="store_
 parser.add_argument("-d", "--debug", help="set logging to DEBUG", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
 args = parser.parse_args()
 
-# logging.basicConfig(level=logging.DEBUG, format="%(levelname)-8s %(message)s")
 logging.basicConfig(level=args.loglevel, format="%(levelname)-8s %(message)s")
-log = logging.getLogger(__name__)
-# log.error("Command not found 1")
-# log.warning("Command not found 2")
-# log.critical("Command not found 3")
-# log.debug("Command not found 4")
-# log.exception("Command not found 5")
-# log.info("Command not found 6")
 
+
+# Log methods
+# logging.error("Command not found 1")
+# logging.warning("Command not found 2")
+# logging.critical("Command not found 3")
+# logging.debug("Command not found 4")
+# logging.exception("Command not found 5")
+# logging.info("Command not found 6")
 
 
 
 
 class App(object):
 
+    """
+        Main app, this is going to define the behavior since introduce
+        the user to the initials options of the menu.
+    """
+
     def __init__(self):
+        # Client refers to the xmpp client.
         self.client = None
+
         self.current_user_jid = None
         self.password = None
         self.running = True
+
+        # Registered options of the menu
         self.unauthenticated_options = ["Close", "Register", "Login"]
 
+        # Executing the app
         self.app()
 
 
     def app(self):
+        # First interaction with the user. Shows the menu and read the option
+        # executing the proper function.
         while self.running:
             self.unauthenticated_menu()
 
             option = input("> ")
 
+            # Execute the user option
             if option.lower() in [i.lower() for i in self.unauthenticated_options]:
                 exec("self.{}()".format(option.lower()))
             else:
-                log.error("Command not found: {}".format(option))
+                logging.error("Command not found: {}".format(option))
 
 
     def unauthenticated_menu(self):
+        # Unauthenticated menu
         print("=" * 40)
         print("\tUnauthenticated Menu:")
         print("-" * 40)
@@ -61,14 +75,12 @@ class App(object):
 
 
     def login(self):
-        # Iniciar sesión con una cuenta
+        # Use the xmpp client to login the user to the server with the registered plugin
         if not self.current_user_jid:
             self.current_user_jid = input("jid: [ros18676@alumchat.xyz] ")
-            # self.current_user_jid = input("jid: [ros@alumchat.xyz] ")
 
         if not self.current_user_jid:
             self.current_user_jid = "ros18676@alumchat.xyz"
-            # self.current_user_jid = "ros@alumchat.xyz"
 
         if not self.password:
             self.password = input("password: [123456] ")
@@ -92,7 +104,8 @@ class App(object):
 
 
     def register(self):
-        # Iniciar sesión con una cuenta
+        # Use the xmpp client to register a new user to the server with the registered plugin
+
         if not self.current_user_jid:
             self.current_user_jid = input("jid: [delete18676@alumchat.xyz] ")
 
