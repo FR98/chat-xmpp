@@ -6,6 +6,7 @@ This project is a chat client that implements the XMPP Protocol. This client is 
 
 - [XEP-0004 - Data forms](https://slixmpp.readthedocs.io/en/latest/api/plugins/xep_0004.html)
 - [XEP-0030 - Service Discovery](https://slixmpp.readthedocs.io/en/latest/api/plugins/xep_0030.html)
+- [XEP-0045 - Multi-User Chat](https://slixmpp.readthedocs.io/en/latest/api/plugins/xep_0045.html)
 - [XEP-0066 - Out-of-band Data](https://slixmpp.readthedocs.io/en/latest/api/plugins/xep_0066.html)
 - [XEP-0071 - XHTML-IM](https://slixmpp.readthedocs.io/en/latest/api/plugins/xep_0071.html)
 - [XEP-0077 - In-band Registration](https://slixmpp.readthedocs.io/en/latest/api/plugins/xep_0077.html)
@@ -58,6 +59,7 @@ This project is a chat client that implements the XMPP Protocol. This client is 
 - show_contact: show info of a specific contact
 - chat: send a message to a specific user
 - group_chat: send a message to a group chat
+- join_group: join a group chat
 - receive_message: get the messages and files received
 - presence: set and send presence
 - send_chat_status: send chat status
@@ -85,16 +87,11 @@ Available menu options:
 - Login
 - Logout
 - Chat
+- Join Group
+- Group Chat
 - Presence
 - List Contacts
 - Show Contact
 - Add Contanct
 - Send File
 - Destroy Account
-
-
-- Características implementadas
-- Dificultades
-- Lecciones aprendidas
-- Video max 5 minutos
-

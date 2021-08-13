@@ -92,6 +92,7 @@ class App(object):
         self.client = Client(self.current_user_jid, self.password)
         self.client.register_plugin("xep_0004") # Data forms
         self.client.register_plugin("xep_0030") # Service Discovery
+        self.client.register_plugin("xep_0045") # Multi-User Chat
         self.client.register_plugin("xep_0066") # Out-of-band Data
         self.client.register_plugin('xep_0071') # XHTML-IM
         self.client.register_plugin("xep_0085") # Chat State Notifications
@@ -122,6 +123,7 @@ class App(object):
         self.client = Client(self.current_user_jid, self.password)
         self.client.register_plugin("xep_0004") # Data forms
         self.client.register_plugin("xep_0030") # Service Discovery
+        self.client.register_plugin("xep_0045") # Multi-User Chat
         self.client.register_plugin("xep_0066") # Out-of-band Data
         self.client.register_plugin('xep_0071') # XHTML-IM
         self.client.register_plugin("xep_0077") # In-band Registration

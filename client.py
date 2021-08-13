@@ -30,7 +30,7 @@ class Client(ClientXMPP):
         self.authenticated = True
 
         # Registered authenticated menu options
-        self.authenticated_options = ["", "Logout", "Chat", "Group Chat", "Presence", "List Contacts", "Show Contact", "Add Contact", "Send File", "Destroy Account"]
+        self.authenticated_options = ["", "Logout", "Chat", "Group Chat", "Join Group", "Presence", "List Contacts", "Show Contact", "Add Contact", "Send File", "Destroy Account"]
 
         # Defining listeners to events
         self.add_event_handler("session_start", self.start)
@@ -160,7 +160,7 @@ class Client(ClientXMPP):
 
 
     def chat(self):
-        # Chat
+        # Send message to user
         try:
             jid_receiver = input("receiver: [testw@alumchat.xyz] ")
 
@@ -184,9 +184,33 @@ class Client(ClientXMPP):
 
 
     def group_chat(self):
-        # Participar en conversaciones grupales
-        # TODO
-        pass
+        # Send message to group
+        try:
+            room = input("room: ")
+
+            room = room + "@conference.alumchat.xyz"
+
+            # Set "is typing..." status
+            self.send_chat_status(room, "composing")
+
+            message = input("message: ")
+            self.send_message(mto=room, mbody=message, mtype="groupchat")
+
+            # Remove "is typing..." status
+            self.send_chat_status(room, "paused")
+
+            logging.info("Message sent.")
+        except IqError:
+            logging.error("Something went wrong.")
+        except IqTimeout:
+            logging.error("No response from server.")
+
+
+    def join_group(self):
+        # Participate on group chat
+        room = input("Room: ")
+        nickname = input("Your nickname: ")
+        self.plugin['xep_0045'].join_muc(room + "@conference.alumchat.xyz", nickname)
 
 
     def receive_message(self, msg):
