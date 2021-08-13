@@ -30,7 +30,7 @@ class Client(ClientXMPP):
         self.authenticated = True
 
         # Registered authenticated menu options
-        self.authenticated_options = ["", "Logout", "Chat", "Presence", "List Contacts", "Show Contact", "Add Contact", "Send File", "Destroy Account"]
+        self.authenticated_options = ["", "Logout", "Chat", "Group Chat", "Presence", "List Contacts", "Show Contact", "Add Contact", "Send File", "Destroy Account"]
 
         # Defining listeners to events
         self.add_event_handler("session_start", self.start)
