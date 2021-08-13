@@ -74,7 +74,9 @@ This project is a chat client that implements the XMPP Protocol. This client is 
 ---
 ### How to install
 ---
-    First of all.
+    * Important: USE PYTHON 3.7
+    pip3 install -r requirements.txt
+    python app.py -q
 
 ### How to use
 ---
@@ -89,9 +91,6 @@ Available menu options:
 - Add Contanct
 - Send File
 - Destroy Account
-
-
-
 
 
 - Características implementadas

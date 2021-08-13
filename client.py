@@ -101,6 +101,7 @@ class Client(ClientXMPP):
 
 
     def logout(self):
+        print("Bye")
         self.authenticated = False
         self.disconnect()
 
@@ -274,11 +275,16 @@ class Client(ClientXMPP):
 
     async def send_file(self):
         # Send file
-        filename = "proyecto1.pdf"
-        receiver = "testw@alumchat.xyz"
-        # domain = "httpfileupload.alumchat.xyz"
-        # domain = "httpfileupload.alumchat.xyz"
         domain = None
+        filename = input("File path: [proyecto1.pdf] ")
+
+        if not filename:
+            filename = "proyecto1.pdf"
+
+        receiver = input("To: [testw@alumchat.xyz] ")
+
+        if not receiver:
+            receiver = "testw@alumchat.xyz"
 
         try:
             logging.info("Uploading file %s...", filename)
